@@ -1,9 +1,24 @@
-import {View, Text, StyleSheet, Image} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Touchable,
+  TouchableOpacity,
+} from 'react-native';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+
 import {COLORS} from '../constants/GLOBAL';
 
 const ArtistCard = ({artist}) => {
+  const navigation = useNavigation();
+  const [favorite, setFavorite] = useState(false);
   return (
-    <View style={[styles.imageContainer]}>
+    <TouchableOpacity
+      onPress={() => navigation.navigate('SongListScreen', artist.song)}
+      style={[styles.imageContainer]}>
       <Image
         source={artist.coverPhoto}
         resizeMode="cover"
@@ -13,7 +28,17 @@ const ArtistCard = ({artist}) => {
       <View style={styles.textContainer}>
         <Text style={styles.text}>{artist.name}</Text>
       </View>
-    </View>
+
+      <TouchableOpacity
+        onPress={() => setFavorite(!favorite)}
+        style={{position: 'absolute', right: 5, top: 5, zIndex: 9990}}>
+        <AntDesign
+          name={favorite ? 'star' : 'staro'}
+          size={22}
+          color={COLORS.YELLOW}
+        />
+      </TouchableOpacity>
+    </TouchableOpacity>
   );
 };
 

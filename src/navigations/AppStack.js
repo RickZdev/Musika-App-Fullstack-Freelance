@@ -4,6 +4,8 @@ import BottomTab from './BottomTab';
 import PlayerTab from '../screens/PlayerTab';
 import FavoritesTab from '../screens/FavoritesTab';
 import ProfileTab from '../screens/ProfileTab';
+import SongListScreen from '../screens/SongListScreen';
+import PlayerScreen from '../screens/PlayerScreen';
 
 const Stack = createStackNavigator();
 
@@ -13,6 +15,8 @@ const PlaylistStack = () => {
       screenOptions={{headerShown: false}}
       initialRouteName={BottomTab}>
       <Stack.Screen name="BottomTab" component={BottomTab} />
+      <Stack.Screen name="SongListScreen" component={SongListScreen} />
+      <Stack.Screen name="PlayerScreen" component={PlayerScreen} />
     </Stack.Navigator>
   );
 };

@@ -35,6 +35,43 @@ export const DATA = {
       id: 0,
       name: 'Zack Tabudlo',
       coverPhoto: require('../assets/artist-cover/zach-tabudlo.jpg'),
+      song: [
+        {
+          id: 0,
+          title: 'Binibini',
+          artist: 'Zack Tabudlo',
+          url: require('../assets/music/Zack/ZackTabudlo-Binibini.mp3'),
+          artwork: require('../assets/images/logo.png'),
+        },
+        {
+          id: 1,
+          title: 'Habang Buhay',
+          artist: 'Zack Tabudlo',
+          url: require('../assets/music/Zack/ZackTabudlo-HabangBuhay.mp3'),
+          artwork: require('../assets/images/logo.png'),
+        },
+        {
+          id: 2,
+          title: 'Nangangamba',
+          artist: 'Zack Tabudlo',
+          url: require('../assets/music/Zack/ZackTabudlo-Nangangamba.mp3'),
+          artwork: require('../assets/images/logo.png'),
+        },
+        {
+          id: 3,
+          title: 'Pano',
+          artist: 'Zack Tabudlo',
+          url: require('../assets/music/Zack/ZackTabudlo-Pano.mp3'),
+          artwork: require('../assets/images/logo.png'),
+        },
+        {
+          id: 4,
+          title: 'Yakap',
+          artist: 'Zack Tabudlo',
+          url: require('../assets/music/Zack/ZackTabudlo-Yakap.mp3'),
+          artwork: require('../assets/images/logo.png'),
+        },
+      ],
     },
     {
       id: 1,
@@ -102,6 +139,7 @@ export const COLORS = {
 
 export const BACKGROUND_IMAGES = {
   BG_BANDERITAS: require('../assets/background-images/bgwithbanderitas.png'),
+  BG_GRADIENT: require('../assets/background-images/gradientbg.png'),
 };
 
 export const TEXT_IMAGES = {

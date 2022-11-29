@@ -32,13 +32,9 @@ import {
 } from '../constants/GLOBAL';
 import MainHeader from '../components/MainHeader';
 
-const PlayerTab = ({route, navigation}) => {
-  // const song = DATA.MALE_ARTIST[0].song[0];
-  console.log(route.index, route.songs);
-  console.log(route);
-  // const index = route.params.index;
-  const song = DATA.MALE_ARTIST[0].song[0];
-
+const PlayerScreen = ({route, navigation}) => {
+  const index = route.params.index;
+  const song = DATA.MALE_ARTIST[0].song;
   const [track, setTrack] = useState({});
   const playbackState = usePlaybackState();
   const progress = useProgress();
@@ -67,31 +63,30 @@ const PlayerTab = ({route, navigation}) => {
     }
   };
 
-  // const togglePlayback = async playbackState => {
-  //   const currentTrack = await TrackPlayer.getCurrentTrack();
-  //   if (currentTrack !== null) {
-  //     playbackState === 'playing'
-  //       ? await TrackPlayer.pause()
-  //       : await TrackPlayer.play();
-  //   }
-  // };
+  const togglePlayback = async playbackState => {
+    const currentTrack = await TrackPlayer.getCurrentTrack();
+    if (currentTrack !== null) {
+      playbackState === 'playing'
+        ? await TrackPlayer.pause()
+        : await TrackPlayer.play();
+    }
+  };
 
-  // const skipTo = async trackId => {
-  //   const getCurrentTrack = await TrackPlayer.getCurrentTrack();
-  //   if (getCurrentTrack !== trackId) {
-  //     await TrackPlayer.skip(trackId);
-  //   }
-  //   await TrackPlayer.play();
-  // };
+  const skipTo = async trackId => {
+    const getCurrentTrack = await TrackPlayer.getCurrentTrack();
+    if (getCurrentTrack !== trackId) {
+      await TrackPlayer.skip(trackId);
+    }
+    await TrackPlayer.play();
+  };
 
   useEffect(() => {
     addSong();
-    // skipTo(index);
-    console.log(track, 'SONGSSS!!');
+    skipTo(index);
   }, []);
 
   useEffect(() => {
-    // console.log(playbackState);
+    console.log(playbackState);
     console.log(track);
   }, [playbackState]);
 
@@ -105,7 +100,10 @@ const PlayerTab = ({route, navigation}) => {
         <View style={styles.content}>
           <CoverPhoto cover={song.artwork} />
           <SongDetails title={song.title} artist={song.artist} />
-          <Controls />
+          <Controls
+            togglePlayback={togglePlayback}
+            playbackState={playbackState}
+          />
           <Buttons />
         </View>
       </View>
@@ -132,7 +130,7 @@ const SongDetails = ({title, artist}) => {
   );
 };
 
-const Controls = () => {
+const Controls = ({playbackState, togglePlayback}) => {
   return (
     <View style={styles.controlsContainer}>
       {/* middle buttons */}
@@ -144,8 +142,14 @@ const Controls = () => {
       </TouchableOpacity>
 
       {/* play or pause */}
-      <TouchableOpacity style={styles.playButton}>
-        <FontAwesome5 name={'play'} size={25} color={COLORS.YELLOW} />
+      <TouchableOpacity
+        onPress={() => togglePlayback(playbackState)}
+        style={styles.playButton}>
+        <FontAwesome5
+          name={playbackState === State.Playing ? 'pause' : 'play'}
+          size={25}
+          color={COLORS.YELLOW}
+        />
       </TouchableOpacity>
 
       {/* next */}
@@ -171,6 +175,8 @@ const Buttons = () => {
     </View>
   );
 };
+
+export default PlayerScreen;
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -236,8 +242,5 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.WHITE,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingLeft: 5,
   },
 });
-
-export default PlayerTab;
