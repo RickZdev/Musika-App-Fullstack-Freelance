@@ -11,15 +11,15 @@ const AuthStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{headerShown: false}}
-      initialRouteName={PlaylistStack}>
-      <Stack.Screen
-        name="PlaylistStack"
-        component={PlaylistStack}
-        options={{presentation: 'card'}}
-      />
+      initialRouteName={OnSplashScreen}>
       <Stack.Screen
         name="OnSplashScreen"
         component={OnSplashScreen}
+        options={{presentation: 'card'}}
+      />
+      <Stack.Screen
+        name="PlaylistStack"
+        component={PlaylistStack}
         options={{presentation: 'card'}}
       />
       <Stack.Screen
