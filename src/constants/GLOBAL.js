@@ -1,4 +1,5 @@
 import {Dimensions} from 'react-native';
+import auth from '@react-native-firebase/auth';
 
 const {width, height} = Dimensions.get('window');
 
@@ -152,4 +153,11 @@ export const TEXT_IMAGES = {
 
 export const SPACING = {
   PADDING_HORIZONTAL: 20,
+};
+
+export const USER_AUTH = {
+  ID: auth().currentUser?.uid,
+  NAME: auth().currentUser?.displayName,
+  EMAIL: auth().currentUser?.email,
+  PHOTO: auth().currentUser?.photoURL,
 };

@@ -1,15 +1,23 @@
 import {View, Text} from 'react-native';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import SplashScreen from 'react-native-splash-screen';
-import {PlaylistStack} from '../navigations/AppStack';
 import AuthenticationScreen from './AuthenticationScreen';
+import auth from '@react-native-firebase/auth';
+import {PlaylistStack} from '../navigations/AppStack';
 
-const OnSplashScreen = ({navigation}) => {
+const OnSplashScreen = () => {
+  const [user, setUser] = useState();
+
   useEffect(() => {
     SplashScreen.hide();
+    const subscriber = auth().onAuthStateChanged(user => {
+      setUser(user);
+    });
+
+    return subscriber;
   }, []);
 
-  return <AuthenticationScreen />;
+  return user ? <PlaylistStack /> : <AuthenticationScreen />;
 };
 
 export default OnSplashScreen;

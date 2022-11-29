@@ -1,14 +1,17 @@
-import {ImageBackground, ScrollView, StyleSheet} from 'react-native';
+import {ImageBackground, ScrollView, StyleSheet, Text} from 'react-native';
 import Playlist from '../components/Playlist';
 import MainHeader from '../components/MainHeader';
 import TitleHeader from '../components/TitleHeader';
+import auth from '@react-native-firebase/auth';
 
 import {
   DATA,
   BACKGROUND_IMAGES,
   TEXT_IMAGES,
   DEVICE_DIMENSION,
+  USER_AUTH,
 } from '../constants/GLOBAL';
+import {useEffect, useState} from 'react';
 
 const PlaylistTab = () => {
   return (
