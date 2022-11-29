@@ -15,6 +15,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
+import Slider from '@react-native-community/slider';
 import TrackPlayer, {
   Event,
   RepeatMode,
@@ -33,12 +34,8 @@ import {
 import MainHeader from '../components/MainHeader';
 
 const PlayerTab = ({route, navigation}) => {
-  // const song = DATA.MALE_ARTIST[0].song[0];
-  console.log(route.index, route.songs);
-  console.log(route);
-  // const index = route.params.index;
-  const song = DATA.MALE_ARTIST[0].song[0];
-
+  const index = 0;
+  const song = DATA.MALE_ARTIST[0].song;
   const [track, setTrack] = useState({});
   const playbackState = usePlaybackState();
   const progress = useProgress();
@@ -67,14 +64,14 @@ const PlayerTab = ({route, navigation}) => {
     }
   };
 
-  // const togglePlayback = async playbackState => {
-  //   const currentTrack = await TrackPlayer.getCurrentTrack();
-  //   if (currentTrack !== null) {
-  //     playbackState === 'playing'
-  //       ? await TrackPlayer.pause()
-  //       : await TrackPlayer.play();
-  //   }
-  // };
+  const togglePlayback = async playbackState => {
+    const currentTrack = await TrackPlayer.getCurrentTrack();
+    if (currentTrack !== null) {
+      playbackState === 'playing'
+        ? await TrackPlayer.pause()
+        : await TrackPlayer.play();
+    }
+  };
 
   // const skipTo = async trackId => {
   //   const getCurrentTrack = await TrackPlayer.getCurrentTrack();
@@ -87,11 +84,10 @@ const PlayerTab = ({route, navigation}) => {
   useEffect(() => {
     addSong();
     // skipTo(index);
-    console.log(track, 'SONGSSS!!');
   }, []);
 
   useEffect(() => {
-    // console.log(playbackState);
+    console.log(playbackState);
     console.log(track);
   }, [playbackState]);
 
@@ -105,7 +101,15 @@ const PlayerTab = ({route, navigation}) => {
         <View style={styles.content}>
           <CoverPhoto cover={song.artwork} />
           <SongDetails title={song.title} artist={song.artist} />
-          <Controls />
+          <ProgressSlider
+            progress={progress}
+            currentDuration={currentDuration}
+            currentTime={currentTime}
+          />
+          <Controls
+            togglePlayback={togglePlayback}
+            playbackState={playbackState}
+          />
           <Buttons />
         </View>
       </View>
@@ -132,7 +136,43 @@ const SongDetails = ({title, artist}) => {
   );
 };
 
-const Controls = () => {
+const ProgressSlider = ({progress, currentTime, currentDuration}) => {
+  console.log(currentTime, currentDuration);
+  return (
+    <View style={{marginTop: 50}}>
+      <Slider
+        value={progress.position}
+        minimumValue={0}
+        maximumValue={100}
+        thumbTintColor={COLORS.WHITE}
+        minimumTrackTintColor={COLORS.WHITE}
+        maximumTrackTintColor={COLORS.WHITE}
+        onSlidingComplete={async value => {
+          await TrackPlayer.seekTo(value);
+          console.log(value);
+        }}
+      />
+
+      {/* time */}
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingHorizontal: 25,
+        }}>
+        <Text style={{color: COLORS.WHITE, fontSize: 12, fontWeight: '600'}}>
+          {currentTime}
+        </Text>
+        <Text style={{color: COLORS.WHITE, fontSize: 12, fontWeight: '600'}}>
+          {currentDuration}
+        </Text>
+      </View>
+    </View>
+  );
+};
+
+const Controls = ({playbackState, togglePlayback}) => {
   return (
     <View style={styles.controlsContainer}>
       {/* middle buttons */}
@@ -144,8 +184,14 @@ const Controls = () => {
       </TouchableOpacity>
 
       {/* play or pause */}
-      <TouchableOpacity style={styles.playButton}>
-        <FontAwesome5 name={'play'} size={25} color={COLORS.YELLOW} />
+      <TouchableOpacity
+        onPress={() => togglePlayback(playbackState)}
+        style={styles.playButton}>
+        <FontAwesome5
+          name={playbackState === State.Playing ? 'pause' : 'play'}
+          size={25}
+          color={COLORS.YELLOW}
+        />
       </TouchableOpacity>
 
       {/* next */}
@@ -171,6 +217,8 @@ const Buttons = () => {
     </View>
   );
 };
+
+export default PlayerTab;
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -236,8 +284,5 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.WHITE,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingLeft: 5,
   },
 });
-
-export default PlayerTab;

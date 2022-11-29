@@ -15,6 +15,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
+import Slider from '@react-native-community/slider';
 import TrackPlayer, {
   Event,
   RepeatMode,
@@ -100,6 +101,11 @@ const PlayerScreen = ({route, navigation}) => {
         <View style={styles.content}>
           <CoverPhoto cover={song.artwork} />
           <SongDetails title={song.title} artist={song.artist} />
+          <ProgressSlider
+            progress={progress}
+            currentDuration={currentDuration}
+            currentTime={currentTime}
+          />
           <Controls
             togglePlayback={togglePlayback}
             playbackState={playbackState}
@@ -126,6 +132,42 @@ const SongDetails = ({title, artist}) => {
     <View style={{marginTop: 10}}>
       <Text style={styles.songTitle}>{title}</Text>
       <Text style={styles.songArtist}>{artist}</Text>
+    </View>
+  );
+};
+
+const ProgressSlider = ({progress, currentTime, currentDuration}) => {
+  console.log(currentTime, currentDuration);
+  return (
+    <View style={{marginTop: 50}}>
+      <Slider
+        value={progress.position}
+        minimumValue={0}
+        maximumValue={100}
+        thumbTintColor={COLORS.WHITE}
+        minimumTrackTintColor={COLORS.WHITE}
+        maximumTrackTintColor={COLORS.WHITE}
+        onSlidingComplete={async value => {
+          await TrackPlayer.seekTo(value);
+          console.log(value);
+        }}
+      />
+
+      {/* time */}
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingHorizontal: 25,
+        }}>
+        <Text style={{color: COLORS.WHITE, fontSize: 12, fontWeight: '600'}}>
+          {currentTime}
+        </Text>
+        <Text style={{color: COLORS.WHITE, fontSize: 12, fontWeight: '600'}}>
+          {currentDuration}
+        </Text>
+      </View>
     </View>
   );
 };

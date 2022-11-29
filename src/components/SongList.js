@@ -22,12 +22,7 @@ const SongList = ({artist}) => {
       <FlatList
         data={artist}
         keyExtractor={item => item.id}
-        style={{paddingHorizontal: 15}}
-        ListHeaderComponent={() => (
-          <Text style={{color: COLORS.BLACK, fontSize: 14, fontWeight: '600'}}>
-            Featuring
-          </Text>
-        )}
+        style={{paddingHorizontal: 15, paddingVertical: 15}}
         renderItem={({item, index}) => <Card song={item} index={index} />}
       />
     </ImageBackground>
@@ -76,18 +71,6 @@ const Card = ({song, index}) => {
         }}>
         <Feather
           name="heart"
-          size={27}
-          color={COLORS.WHITE}
-          style={{marginLeft: 10}}
-        />
-        <Feather
-          name="minus-circle"
-          size={27}
-          color={COLORS.WHITE}
-          style={{marginLeft: 10}}
-        />
-        <Feather
-          name="more-vertical"
           size={27}
           color={COLORS.WHITE}
           style={{marginLeft: 10}}
