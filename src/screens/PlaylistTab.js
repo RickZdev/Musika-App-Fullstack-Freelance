@@ -1,17 +1,15 @@
-import {ImageBackground, ScrollView, StyleSheet, Text} from 'react-native';
+import {useEffect, useState} from 'react';
+import {ImageBackground, ScrollView, StyleSheet} from 'react-native';
+
 import Playlist from '../components/Playlist';
 import MainHeader from '../components/MainHeader';
 import TitleHeader from '../components/TitleHeader';
-import auth from '@react-native-firebase/auth';
-
+import {getArtistByCategory} from '../backend/firebase-config';
 import {
   BACKGROUND_IMAGES,
   TEXT_IMAGES,
   DEVICE_DIMENSION,
-  DATA,
 } from '../constants/GLOBAL';
-import {useEffect, useState} from 'react';
-import {getArtistByCategory} from '../backend/firebase-config';
 
 const PlaylistTab = () => {
   const [maleArtist, setMaleArtist] = useState();
@@ -23,6 +21,7 @@ const PlaylistTab = () => {
     getArtistByCategory('Female Artist', setFemaleArtist);
     getArtistByCategory('Group Artist', setGroupArtist);
   }, []);
+
   return (
     <ImageBackground
       source={BACKGROUND_IMAGES.BG_BANDERITAS}
@@ -30,7 +29,6 @@ const PlaylistTab = () => {
       style={styles.mainContainer}>
       {/* header */}
       <MainHeader />
-
       <TitleHeader
         imageHeader={TEXT_IMAGES.PLAYLIST_TEXT}
         containerStyle={{paddingLeft: 20}}

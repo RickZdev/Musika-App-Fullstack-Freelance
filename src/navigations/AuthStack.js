@@ -1,5 +1,6 @@
 import React from 'react';
 import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
+
 import OnSplashScreen from '../screens/OnSplashScreen';
 import AuthenticationScreen from '../screens/AuthenticationScreen';
 import {PlaylistStack} from './AppStack';

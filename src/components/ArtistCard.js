@@ -1,16 +1,9 @@
-import {useNavigation} from '@react-navigation/native';
 import {useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  Touchable,
-  TouchableOpacity,
-} from 'react-native';
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {addToFavorites} from '../backend/firebase-config';
 
+import {addToFavorites} from '../backend/firebase-config';
 import {COLORS} from '../constants/GLOBAL';
 
 const ArtistCard = ({artist}) => {

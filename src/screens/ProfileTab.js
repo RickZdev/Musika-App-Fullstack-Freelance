@@ -1,3 +1,4 @@
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -6,17 +7,10 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {
-  addArtist,
-  addUserToDatabase,
-  getNumberOfFavorites,
-  getUser,
-  logoutUser,
-} from '../backend/firebase-config';
 import auth from '@react-native-firebase/auth';
+
+import {getNumberOfFavorites, logoutUser} from '../backend/firebase-config';
 import {BACKGROUND_IMAGES, COLORS, DEVICE_DIMENSION} from '../constants/GLOBAL';
-import MainHeader from '../components/MainHeader';
 
 const ProfileTab = ({navigation}) => {
   const avatar = auth().currentUser?.photoURL;

@@ -6,7 +6,6 @@ import Foundation from 'react-native-vector-icons/Foundation';
 import PlaylistTab from '../screens/PlaylistTab';
 import {FavoritesStack, PlayerStack, ProfileStack} from './AppStack';
 import {COLORS} from '../constants/GLOBAL';
-import {TouchableOpacity} from 'react-native';
 
 const Tab = createBottomTabNavigator();
 

@@ -1,5 +1,4 @@
 import {View, FlatList} from 'react-native';
-import React from 'react';
 
 import TitleHeader from './TitleHeader';
 import ArtistCard from './ArtistCard';

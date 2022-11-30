@@ -1,25 +1,10 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ImageBackground,
-  Image,
-} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {
-  getCurrentUser,
-  googleSignIn,
-  logoutUser,
-} from '../backend/firebase-config';
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-} from '@react-native-google-signin/google-signin';
+import React, {useState} from 'react';
+import {View, StyleSheet, ImageBackground, Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {BACKGROUND_IMAGES, DEVICE_DIMENSION, LOGO} from '../constants/GLOBAL';
+import {GoogleSigninButton} from '@react-native-google-signin/google-signin';
 
-// import {googleAuth} from '../backend/firebase-config';
+import {googleSignIn} from '../backend/firebase-config';
+import {BACKGROUND_IMAGES, DEVICE_DIMENSION, LOGO} from '../constants/GLOBAL';
 
 const AuthenticationScreen = () => {
   const navigation = useNavigation();

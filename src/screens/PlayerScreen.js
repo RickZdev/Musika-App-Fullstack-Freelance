@@ -7,33 +7,24 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
-import Ionicons from 'react-native-vector-icons/MaterialIcons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-
 import Slider from '@react-native-community/slider';
 import TrackPlayer, {
   Event,
-  RepeatMode,
   State,
   usePlaybackState,
   useProgress,
   useTrackPlayerEvents,
 } from 'react-native-track-player';
 
-import {
-  BACKGROUND_IMAGES,
-  COLORS,
-  DATA,
-  DEVICE_DIMENSION,
-} from '../constants/GLOBAL';
 import MainHeader from '../components/MainHeader';
-import {updateLastPlayedSong} from '../backend/firebase-config';
 import BackButton from '../components/BackButton';
+import {updateLastPlayedSong} from '../backend/firebase-config';
+import {BACKGROUND_IMAGES, COLORS, DEVICE_DIMENSION} from '../constants/GLOBAL';
 
 const PlayerScreen = ({route, navigation}) => {
   const index = route.params.index;
@@ -164,13 +155,7 @@ const ProgressSlider = ({progress, currentTime, currentDuration}) => {
       />
 
       {/* time */}
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingHorizontal: 25,
-        }}>
+      <View style={styles.timeContainer}>
         <Text style={{color: COLORS.WHITE, fontSize: 12, fontWeight: '600'}}>
           {currentTime}
         </Text>
@@ -296,6 +281,12 @@ const styles = StyleSheet.create({
     color: COLORS.WHITE,
     fontSize: 20,
     fontWeight: '500',
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 25,
   },
   controlsContainer: {
     flexDirection: 'row',

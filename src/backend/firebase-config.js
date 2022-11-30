@@ -1,9 +1,9 @@
+import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import firestore from '@react-native-firebase/firestore';
-import {USER_AUTH} from '../constants/GLOBAL';
 import {Alert} from 'react-native';
 
+// authentication
 GoogleSignin.configure({
   webClientId:
     '780619674479-06cdvatq36f4m7nt45a7hovmbs1e47bq.apps.googleusercontent.com',
@@ -15,9 +15,9 @@ const googleSignIn = async (setLoading, navigation) => {
     await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
     const user = await GoogleSignin.signIn();
     const googleCredential = auth.GoogleAuthProvider.credential(user.idToken);
-    navigation.replace('PlaylistStack');
 
-    if (await isUserExist(user.user?.id)) {
+    const isUserAlreadyExist = await checkUserIfExists(user.user?.email);
+    if (!isUserAlreadyExist) {
       addUserToDatabase(
         user.user?.email,
         user.user?.id,
@@ -27,6 +27,7 @@ const googleSignIn = async (setLoading, navigation) => {
     }
 
     auth().signInWithCredential(googleCredential);
+    navigation.replace('PlaylistStack');
   } catch (err) {
     console.log(err.message);
   }
@@ -39,6 +40,7 @@ const addUserToDatabase = async (email, id, name, photo) => {
       .collection('users')
       .doc(email)
       .set({
+        email,
         id,
         name,
         photo,
@@ -51,15 +53,19 @@ const addUserToDatabase = async (email, id, name, photo) => {
   }
 };
 
-const isUserExist = async id => {
-  const user = await firestore().collection('users').where(id, '==', id).get();
+const checkUserIfExists = async email => {
+  const user = await firestore()
+    .collection('users')
+    .where('email', '==', email)
+    .get();
 
-  const tempDb = [];
-  user.docs.forEach(artist => {
-    tempDb.push(artist.data());
+  let numberOfUser = 0;
+
+  user.docs.forEach(() => {
+    numberOfUser++;
   });
 
-  return tempDb.length > 0;
+  return numberOfUser > 0;
 };
 
 const logoutUser = async navigation => {
@@ -73,18 +79,24 @@ const logoutUser = async navigation => {
   }
 };
 
+// read
+
 const getArtistByCategory = async (category, setArtist) => {
-  const user = await firestore()
-    .collection('artists')
-    .where('category', '==', category)
-    .get();
+  try {
+    const user = await firestore()
+      .collection('artists')
+      .where('category', '==', category)
+      .get();
 
-  const tempDb = [];
-  user.docs.forEach(artist => {
-    tempDb.push(artist.data());
-  });
+    const tempDb = [];
+    user.docs.forEach(artist => {
+      tempDb.push(artist.data());
+    });
 
-  setArtist(tempDb);
+    setArtist(tempDb);
+  } catch (err) {
+    console.log(err.message);
+  }
 };
 
 const getFavoriteArtist = async setFavoriteArtist => {
@@ -138,26 +150,31 @@ const getNumberOfFavorites = async setNumberOfFavorites => {
     );
 };
 
+// write
+
 const addToFavorites = async artist => {
   let getIndex;
   let alreadyFavorite = false;
   const tempFavorites = [];
 
+  // get existing favorites
   const currentFavorites = await firestore()
     .collection('users')
     .doc(auth().currentUser?.email)
     .get();
 
-  const currFave = currentFavorites.data().favorites;
+  const currFave = currentFavorites.data()?.favorites;
   currFave.forEach((item, index) => {
     if (item.name === artist.name) {
       alreadyFavorite = true;
       getIndex = index;
     }
 
+    // put all favorites to temp container
     tempFavorites.push(item);
   });
 
+  // if existing remove, if not then add to db
   if (alreadyFavorite) {
     tempFavorites.splice(getIndex, 1);
     Alert.alert('Removed from your favorites!');
@@ -171,26 +188,29 @@ const addToFavorites = async artist => {
     .doc(auth().currentUser?.email)
     .update({
       favorites: [...tempFavorites],
-    });
+    })
+    .catch(err => console.log(err.message));
 };
 
+// update
 const updateLastPlayedSong = async (artist, numberOfSongs) => {
   await firestore()
     .collection('users')
     .doc(auth().currentUser?.email)
     .update({
       lastPlayedSong: {...artist, numberOfSongs, firstTime: false},
-    });
+    })
+    .catch(err => console.log(err.message));
 };
 
 export {
   googleSignIn,
   addUserToDatabase,
-  addToFavorites,
   logoutUser,
   getArtistByCategory,
   getFavoriteArtist,
   getLastPlayedSong,
   getNumberOfFavorites,
+  addToFavorites,
   updateLastPlayedSong,
 };
