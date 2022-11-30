@@ -149,15 +149,15 @@ export const TEXT_IMAGES = {
   FEMALE_ARTIST_TEXT: require('../assets/text-images/femaleartist.png'),
   MALE_ARTIST_TEXT: require('../assets/text-images/maleartist.png'),
   GROUP_ARTIST_TEXT: require('../assets/text-images/groupartist.png'),
+  FAVORITES_TEXT: require('../assets/text-images/favorites.png'),
+};
+
+export const LOGO = {
+  ICON: require('../assets/images/logo.png'),
+  TEXT_ICON_LOGO: require('../assets/images/musika-header.png'),
+  TEXT_LOGO: require('../assets/images/musika-text.png'),
 };
 
 export const SPACING = {
   PADDING_HORIZONTAL: 20,
-};
-
-export const USER_AUTH = {
-  ID: auth().currentUser?.uid,
-  NAME: auth().currentUser?.displayName,
-  EMAIL: auth().currentUser?.email,
-  PHOTO: auth().currentUser?.photoURL,
 };

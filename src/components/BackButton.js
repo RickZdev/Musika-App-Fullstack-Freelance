@@ -6,7 +6,7 @@ import {COLORS} from '../constants/GLOBAL';
 const BackButton = ({onPress}) => {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
-      <Feather name={'arrow-left'} size={18} color={COLORS.WHITE} />
+      <Feather name={'arrow-left'} size={22} color={COLORS.WHITE} />
     </TouchableOpacity>
   );
 };

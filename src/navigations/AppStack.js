@@ -1,4 +1,4 @@
-import {createStackNavigator} from '@react-navigation/stack';
+import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
 
 import BottomTab from './BottomTab';
 import PlayerTab from '../screens/PlayerTab';
@@ -15,8 +15,16 @@ const PlaylistStack = () => {
       screenOptions={{headerShown: false}}
       initialRouteName={BottomTab}>
       <Stack.Screen name="BottomTab" component={BottomTab} />
-      <Stack.Screen name="SongListScreen" component={SongListScreen} />
-      <Stack.Screen name="PlayerScreen" component={PlayerScreen} />
+      <Stack.Screen
+        name="SongListScreen"
+        component={SongListScreen}
+        options={{...TransitionPresets.SlideFromRightIOS}}
+      />
+      <Stack.Screen
+        name="PlayerScreen"
+        component={PlayerScreen}
+        options={{...TransitionPresets.ModalPresentationIOS}}
+      />
     </Stack.Navigator>
   );
 };

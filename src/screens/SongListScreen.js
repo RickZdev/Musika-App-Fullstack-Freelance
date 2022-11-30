@@ -10,14 +10,14 @@ import SongList from '../components/SongList';
 
 const SongListScreen = ({navigation, route}) => {
   const artist = route.params;
-  console.log(artist);
+  const songs = artist.songs;
   return (
     <View style={{flex: 1}}>
       <ImageHeaderScrollView
         maxHeight={DEVICE_DIMENSION.HEIGHT / 2 - 80}
         minHeight={100}
         showsVerticalScrollIndicator={false}
-        headerImage={require('../assets/artist-cover/adie.png')}
+        headerImage={{uri: artist.coverPhoto}}
         maxOverlayOpacity={0.6}
         minOverlayOpacity={0}
         renderForeground={() => (
@@ -28,7 +28,7 @@ const SongListScreen = ({navigation, route}) => {
           </View>
         )}>
         <TriggeringView style={{flex: 1}}>
-          <SongList artist={artist} />
+          <SongList songs={songs} />
         </TriggeringView>
       </ImageHeaderScrollView>
     </View>

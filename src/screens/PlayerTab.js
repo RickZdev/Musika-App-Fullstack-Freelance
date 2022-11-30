@@ -5,6 +5,7 @@ import {
   View,
   Image,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 
@@ -25,17 +26,26 @@ import TrackPlayer, {
   useTrackPlayerEvents,
 } from 'react-native-track-player';
 
-import {
-  BACKGROUND_IMAGES,
-  COLORS,
-  DATA,
-  DEVICE_DIMENSION,
-} from '../constants/GLOBAL';
+import {BACKGROUND_IMAGES, COLORS, DEVICE_DIMENSION} from '../constants/GLOBAL';
 import MainHeader from '../components/MainHeader';
+import {getLastPlayedSong} from '../backend/firebase-config';
 
-const PlayerTab = ({route, navigation}) => {
-  const index = 0;
-  const song = DATA.MALE_ARTIST[0].song;
+const PlayerTab = () => {
+  const [song, setSong] = useState({});
+
+  useEffect(() => {
+    getLastPlayedSong(setSong);
+
+    const addSong = async () => {
+      await TrackPlayer.add(song);
+      await TrackPlayer.play();
+    };
+
+    addSong();
+  }, []);
+
+  const numOfSongs = song.numOfSongs;
+
   const [track, setTrack] = useState({});
   const playbackState = usePlaybackState();
   const progress = useProgress();
@@ -55,15 +65,6 @@ const PlayerTab = ({route, navigation}) => {
     }
   });
 
-  const addSong = async () => {
-    try {
-      await TrackPlayer.reset();
-      await TrackPlayer.add(song);
-    } catch (err) {
-      console.log(err.message);
-    }
-  };
-
   const togglePlayback = async playbackState => {
     const currentTrack = await TrackPlayer.getCurrentTrack();
     if (currentTrack !== null) {
@@ -73,24 +74,6 @@ const PlayerTab = ({route, navigation}) => {
     }
   };
 
-  // const skipTo = async trackId => {
-  //   const getCurrentTrack = await TrackPlayer.getCurrentTrack();
-  //   if (getCurrentTrack !== trackId) {
-  //     await TrackPlayer.skip(trackId);
-  //   }
-  //   await TrackPlayer.play();
-  // };
-
-  useEffect(() => {
-    addSong();
-    // skipTo(index);
-  }, []);
-
-  useEffect(() => {
-    console.log(playbackState);
-    console.log(track);
-  }, [playbackState]);
-
   return (
     <ImageBackground
       source={BACKGROUND_IMAGES.BG_BANDERITAS}
@@ -98,30 +81,46 @@ const PlayerTab = ({route, navigation}) => {
       style={styles.mainContainer}>
       <MainHeader />
       <View style={styles.contentContainer}>
-        <View style={styles.content}>
-          <CoverPhoto cover={song.artwork} />
-          <SongDetails title={song.title} artist={song.artist} />
-          <ProgressSlider
-            progress={progress}
-            currentDuration={currentDuration}
-            currentTime={currentTime}
-          />
-          <Controls
-            togglePlayback={togglePlayback}
-            playbackState={playbackState}
-          />
-          <Buttons />
-        </View>
+        {song.firstTime ? (
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <Text>NO CURRENTLY PLAYING</Text>
+          </View>
+        ) : (
+          <View style={styles.content}>
+            <CoverPhoto artwork={track?.artwork} />
+            <SongDetails
+              title={track?.title ?? song?.title}
+              artist={track?.artist ?? song?.artist}
+            />
+            <ProgressSlider
+              progress={progress}
+              currentDuration={currentDuration}
+              currentTime={currentTime}
+            />
+            <Controls
+              track={track}
+              numOfSongs={numOfSongs}
+              togglePlayback={togglePlayback}
+              playbackState={playbackState}
+            />
+            <Buttons />
+          </View>
+        )}
       </View>
     </ImageBackground>
   );
 };
 
-const CoverPhoto = ({cover}) => {
+const CoverPhoto = ({artwork}) => {
   return (
     <View style={styles.coverContainer}>
       <View style={styles.imageContainer}>
-        <Image source={cover} resizeMode="cover" style={styles.image} />
+        <Image
+          source={{uri: artwork}}
+          resizeMode="cover"
+          style={styles.image}
+        />
       </View>
     </View>
   );
@@ -137,19 +136,17 @@ const SongDetails = ({title, artist}) => {
 };
 
 const ProgressSlider = ({progress, currentTime, currentDuration}) => {
-  console.log(currentTime, currentDuration);
   return (
-    <View style={{marginTop: 50}}>
+    <View style={{marginTop: 20}}>
       <Slider
         value={progress.position}
         minimumValue={0}
-        maximumValue={100}
+        maximumValue={progress.duration}
         thumbTintColor={COLORS.WHITE}
         minimumTrackTintColor={COLORS.WHITE}
         maximumTrackTintColor={COLORS.WHITE}
         onSlidingComplete={async value => {
           await TrackPlayer.seekTo(value);
-          console.log(value);
         }}
       />
 
@@ -172,15 +169,20 @@ const ProgressSlider = ({progress, currentTime, currentDuration}) => {
   );
 };
 
-const Controls = ({playbackState, togglePlayback}) => {
+const Controls = ({track, numOfSongs, playbackState, togglePlayback}) => {
   return (
     <View style={styles.controlsContainer}>
       {/* middle buttons */}
 
       {/* previous */}
       <TouchableOpacity
+        disabled={track.songId === 0 && true}
         onPress={async () => await TrackPlayer.skipToPrevious()}>
-        <MaterialIcons name="skip-previous" size={50} color={COLORS.WHITE} />
+        <MaterialIcons
+          name="skip-previous"
+          size={50}
+          color={track.songId === 0 ? 'gray' : COLORS.WHITE}
+        />
       </TouchableOpacity>
 
       {/* play or pause */}
@@ -195,25 +197,42 @@ const Controls = ({playbackState, togglePlayback}) => {
       </TouchableOpacity>
 
       {/* next */}
-      <TouchableOpacity onPress={async () => await TrackPlayer.skipToNext()}>
-        <MaterialIcons name="skip-next" size={50} color={COLORS.WHITE} />
+      <TouchableOpacity
+        disabled={track.songId === numOfSongs - 1 && true}
+        onPress={async () => await TrackPlayer.skipToNext()}>
+        <MaterialIcons
+          name="skip-next"
+          size={50}
+          color={track.songId === numOfSongs - 1 ? 'gray' : COLORS.WHITE}
+        />
       </TouchableOpacity>
     </View>
   );
 };
 
 const Buttons = () => {
-  const iconSize = 45;
+  const iconSize = 30;
   return (
     <View style={styles.buttonContainer}>
-      <AntDesign name="hearto" color={COLORS.WHITE} size={iconSize} />
-      <Feather name="repeat" color={COLORS.WHITE} size={iconSize} />
-      <Feather name="share" color={COLORS.WHITE} size={iconSize} />
-      <Entypo
-        name="dots-three-horizontal"
-        color={COLORS.WHITE}
-        size={iconSize}
-      />
+      <TouchableOpacity>
+        <AntDesign name="hearto" color={COLORS.WHITE} size={iconSize} />
+      </TouchableOpacity>
+
+      <TouchableOpacity>
+        <Feather name="repeat" color={COLORS.WHITE} size={iconSize} />
+      </TouchableOpacity>
+
+      <TouchableOpacity>
+        <Feather name="share" color={COLORS.WHITE} size={iconSize} />
+      </TouchableOpacity>
+
+      <TouchableOpacity>
+        <Entypo
+          name="dots-three-horizontal"
+          color={COLORS.WHITE}
+          size={iconSize}
+        />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -242,10 +261,11 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   imageContainer: {
-    width: 230,
-    height: 230,
-    backgroundColor: COLORS.RED,
+    backgroundColor: 'gray',
+    width: 220,
+    height: 200,
     borderRadius: 20,
+    overflow: 'hidden',
   },
   image: {
     width: '100%',
@@ -264,7 +284,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   controlsContainer: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',

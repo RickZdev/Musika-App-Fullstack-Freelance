@@ -5,15 +5,24 @@ import TitleHeader from '../components/TitleHeader';
 import auth from '@react-native-firebase/auth';
 
 import {
-  DATA,
   BACKGROUND_IMAGES,
   TEXT_IMAGES,
   DEVICE_DIMENSION,
-  USER_AUTH,
+  DATA,
 } from '../constants/GLOBAL';
 import {useEffect, useState} from 'react';
+import {getArtistByCategory} from '../backend/firebase-config';
 
 const PlaylistTab = () => {
+  const [maleArtist, setMaleArtist] = useState();
+  const [femaleArtist, setFemaleArtist] = useState();
+  const [groupArtist, setGroupArtist] = useState();
+
+  useEffect(() => {
+    getArtistByCategory('Male Artist', setMaleArtist);
+    getArtistByCategory('Female Artist', setFemaleArtist);
+    getArtistByCategory('Group Artist', setGroupArtist);
+  }, []);
   return (
     <ImageBackground
       source={BACKGROUND_IMAGES.BG_BANDERITAS}
@@ -30,23 +39,23 @@ const PlaylistTab = () => {
       />
 
       {/* playlist */}
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <Playlist
-          data={DATA.MALE_ARTIST}
+          data={maleArtist}
           imageHeader={TEXT_IMAGES.MALE_ARTIST_TEXT}
         />
         <Playlist
-          data={DATA.FEMALE_ARTIST}
+          data={femaleArtist}
           imageHeader={TEXT_IMAGES.FEMALE_ARTIST_TEXT}
         />
         <Playlist
-          data={DATA.GROUP_ARTIST}
+          data={groupArtist}
           imageHeader={TEXT_IMAGES.GROUP_ARTIST_TEXT}
         />
-        <Playlist
+        {/* <Playlist
           data={DATA.ALL_SONGS}
           imageHeader={TEXT_IMAGES.ALL_SONGS_TEXT}
-        />
+        /> */}
       </ScrollView>
     </ImageBackground>
   );

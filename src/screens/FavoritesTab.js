@@ -1,5 +1,5 @@
-import {View, Text, StyleSheet, ImageBackground} from 'react-native';
-import React from 'react';
+import {View, Text, StyleSheet, ImageBackground, FlatList} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import {
   BACKGROUND_IMAGES,
   DEVICE_DIMENSION,
@@ -7,8 +7,15 @@ import {
 } from '../constants/GLOBAL';
 import MainHeader from '../components/MainHeader';
 import TitleHeader from '../components/TitleHeader';
+import {getFavoriteArtist} from '../backend/firebase-config';
+import ArtistCard from '../components/ArtistCard';
 
 const FavoritesTab = () => {
+  const [favoriteArtist, setFavoriteArtist] = useState();
+
+  useEffect(() => {
+    getFavoriteArtist(setFavoriteArtist);
+  }, []);
   return (
     <ImageBackground
       source={BACKGROUND_IMAGES.BG_BANDERITAS}
@@ -17,11 +24,20 @@ const FavoritesTab = () => {
       <MainHeader />
 
       <TitleHeader
-        imageHeader={TEXT_IMAGES.PLAYLIST_TEXT}
+        imageHeader={TEXT_IMAGES.FAVORITES_TEXT}
         containerStyle={{paddingLeft: 20}}
         width={100}
         height={50}
       />
+
+      <View style={{paddingLeft: 5}}>
+        <FlatList
+          data={favoriteArtist}
+          numColumns={3}
+          keyExtractor={(_item, index) => index.toString()}
+          renderItem={({item}) => <ArtistCard artist={item} />}
+        />
+      </View>
     </ImageBackground>
   );
 };

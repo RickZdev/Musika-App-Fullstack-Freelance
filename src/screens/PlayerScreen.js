@@ -32,10 +32,14 @@ import {
   DEVICE_DIMENSION,
 } from '../constants/GLOBAL';
 import MainHeader from '../components/MainHeader';
+import {updateLastPlayedSong} from '../backend/firebase-config';
+import BackButton from '../components/BackButton';
 
 const PlayerScreen = ({route, navigation}) => {
   const index = route.params.index;
-  const song = DATA.MALE_ARTIST[0].song;
+  const songs = route.params.songs;
+  const numOfSongs = songs.length;
+
   const [track, setTrack] = useState({});
   const playbackState = usePlaybackState();
   const progress = useProgress();
@@ -58,7 +62,7 @@ const PlayerScreen = ({route, navigation}) => {
   const addSong = async () => {
     try {
       await TrackPlayer.reset();
-      await TrackPlayer.add(song);
+      await TrackPlayer.add(songs);
     } catch (err) {
       console.log(err.message);
     }
@@ -77,6 +81,8 @@ const PlayerScreen = ({route, navigation}) => {
     const getCurrentTrack = await TrackPlayer.getCurrentTrack();
     if (getCurrentTrack !== trackId) {
       await TrackPlayer.skip(trackId);
+    } else {
+      await TrackPlayer.play();
     }
     await TrackPlayer.play();
   };
@@ -87,9 +93,8 @@ const PlayerScreen = ({route, navigation}) => {
   }, []);
 
   useEffect(() => {
-    console.log(playbackState);
-    console.log(track);
-  }, [playbackState]);
+    updateLastPlayedSong(track, numOfSongs);
+  }, [track]);
 
   return (
     <ImageBackground
@@ -99,14 +104,17 @@ const PlayerScreen = ({route, navigation}) => {
       <MainHeader />
       <View style={styles.contentContainer}>
         <View style={styles.content}>
-          <CoverPhoto cover={song.artwork} />
-          <SongDetails title={song.title} artist={song.artist} />
+          <BackButton onPress={() => navigation.goBack()} />
+          <CoverPhoto artwork={track?.artwork} />
+          <SongDetails title={track?.title} artist={track?.artist} />
           <ProgressSlider
             progress={progress}
             currentDuration={currentDuration}
             currentTime={currentTime}
           />
           <Controls
+            track={track}
+            numOfSongs={numOfSongs}
             togglePlayback={togglePlayback}
             playbackState={playbackState}
           />
@@ -117,11 +125,15 @@ const PlayerScreen = ({route, navigation}) => {
   );
 };
 
-const CoverPhoto = ({cover}) => {
+const CoverPhoto = ({artwork}) => {
   return (
     <View style={styles.coverContainer}>
       <View style={styles.imageContainer}>
-        <Image source={cover} resizeMode="cover" style={styles.image} />
+        <Image
+          source={{uri: artwork}}
+          resizeMode="cover"
+          style={styles.image}
+        />
       </View>
     </View>
   );
@@ -137,19 +149,17 @@ const SongDetails = ({title, artist}) => {
 };
 
 const ProgressSlider = ({progress, currentTime, currentDuration}) => {
-  console.log(currentTime, currentDuration);
   return (
-    <View style={{marginTop: 50}}>
+    <View style={{marginTop: 20}}>
       <Slider
         value={progress.position}
         minimumValue={0}
-        maximumValue={100}
+        maximumValue={progress.duration}
         thumbTintColor={COLORS.WHITE}
         minimumTrackTintColor={COLORS.WHITE}
         maximumTrackTintColor={COLORS.WHITE}
         onSlidingComplete={async value => {
           await TrackPlayer.seekTo(value);
-          console.log(value);
         }}
       />
 
@@ -172,15 +182,20 @@ const ProgressSlider = ({progress, currentTime, currentDuration}) => {
   );
 };
 
-const Controls = ({playbackState, togglePlayback}) => {
+const Controls = ({track, numOfSongs, playbackState, togglePlayback}) => {
   return (
     <View style={styles.controlsContainer}>
       {/* middle buttons */}
 
       {/* previous */}
       <TouchableOpacity
+        disabled={track?.songId === 0 && true}
         onPress={async () => await TrackPlayer.skipToPrevious()}>
-        <MaterialIcons name="skip-previous" size={50} color={COLORS.WHITE} />
+        <MaterialIcons
+          name="skip-previous"
+          size={50}
+          color={track.songId === 0 ? 'gray' : COLORS.WHITE}
+        />
       </TouchableOpacity>
 
       {/* play or pause */}
@@ -195,25 +210,42 @@ const Controls = ({playbackState, togglePlayback}) => {
       </TouchableOpacity>
 
       {/* next */}
-      <TouchableOpacity onPress={async () => await TrackPlayer.skipToNext()}>
-        <MaterialIcons name="skip-next" size={50} color={COLORS.WHITE} />
+      <TouchableOpacity
+        disabled={track.songId === numOfSongs - 1 && true}
+        onPress={async () => await TrackPlayer.skipToNext()}>
+        <MaterialIcons
+          name="skip-next"
+          size={50}
+          color={track.songId === numOfSongs - 1 ? 'gray' : COLORS.WHITE}
+        />
       </TouchableOpacity>
     </View>
   );
 };
 
 const Buttons = () => {
-  const iconSize = 45;
+  const iconSize = 30;
   return (
     <View style={styles.buttonContainer}>
-      <AntDesign name="hearto" color={COLORS.WHITE} size={iconSize} />
-      <Feather name="repeat" color={COLORS.WHITE} size={iconSize} />
-      <Feather name="share" color={COLORS.WHITE} size={iconSize} />
-      <Entypo
-        name="dots-three-horizontal"
-        color={COLORS.WHITE}
-        size={iconSize}
-      />
+      <TouchableOpacity>
+        <AntDesign name="hearto" color={COLORS.WHITE} size={iconSize} />
+      </TouchableOpacity>
+
+      <TouchableOpacity>
+        <Feather name="repeat" color={COLORS.WHITE} size={iconSize} />
+      </TouchableOpacity>
+
+      <TouchableOpacity>
+        <Feather name="share" color={COLORS.WHITE} size={iconSize} />
+      </TouchableOpacity>
+
+      <TouchableOpacity>
+        <Entypo
+          name="dots-three-horizontal"
+          color={COLORS.WHITE}
+          size={iconSize}
+        />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -235,6 +267,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.YELLOW,
     borderRadius: 10,
+    elevation: 10,
   },
   coverContainer: {
     justifyContent: 'center',
@@ -242,10 +275,11 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   imageContainer: {
-    width: 230,
-    height: 230,
-    backgroundColor: COLORS.RED,
+    width: 220,
+    height: 200,
     borderRadius: 20,
+    backgroundColor: 'gray',
+    overflow: 'hidden',
   },
   image: {
     width: '100%',
@@ -264,7 +298,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   controlsContainer: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',

@@ -13,29 +13,26 @@ import Feather from 'react-native-vector-icons/Feather';
 import {useNavigation} from '@react-navigation/native';
 import {BACKGROUND_IMAGES, COLORS, DEVICE_DIMENSION} from '../constants/GLOBAL';
 
-const SongList = ({artist}) => {
+const SongList = ({songs}) => {
   return (
     <ImageBackground
       source={BACKGROUND_IMAGES.BG_GRADIENT}
       resizeMode="cover"
       style={styles.mainContainer}>
-      <FlatList
-        data={artist}
-        keyExtractor={item => item.id}
-        style={{paddingHorizontal: 15, paddingVertical: 15}}
-        renderItem={({item, index}) => <Card song={item} index={index} />}
-      />
+      <View style={{paddingHorizontal: 15, paddingVertical: 15}}>
+        {songs.map((item, index) => (
+          <Card songs={songs} song={item} index={index} />
+        ))}
+      </View>
     </ImageBackground>
   );
 };
 
-const Card = ({song, index}) => {
+const Card = ({songs, song, index}) => {
   const navigation = useNavigation();
-  console.log(song);
-  console.log(index);
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate('PlayerScreen', {index, song})}
+      onPress={() => navigation.navigate('PlayerScreen', {index, song, songs})}
       style={{
         flexDirection: 'row',
         paddingRight: 20,
@@ -45,11 +42,14 @@ const Card = ({song, index}) => {
         marginBottom: 16,
         borderRadius: 15,
         overflow: 'hidden',
-      }}>
+        elevation: 7,
+      }}
+      key={song.id}
+      activeOpacity={0.6}>
       {/* image */}
       <View style={{width: 120, height: '100%'}}>
         <Image
-          source={song.artwork}
+          source={{uri: song?.artwork}}
           resizeMode="cover"
           style={{width: '100%', height: '100%'}}
         />
@@ -57,9 +57,16 @@ const Card = ({song, index}) => {
 
       {/* details */}
       <View
-        style={{flex: 1, justifyContent: 'center', alignItems: 'flex-start'}}>
-        <Text>{song.title}</Text>
-        <Text style={{fontSize: 10, color: COLORS.BLACK}}>{song.artist}</Text>
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          marginLeft: 12,
+        }}>
+        <Text style={{fontSize: 16, color: COLORS.BLACK, fontWeight: '700'}}>
+          {song.title}
+        </Text>
+        <Text style={{fontSize: 12, color: 'gray'}}>{song.artist}</Text>
       </View>
 
       {/* control */}

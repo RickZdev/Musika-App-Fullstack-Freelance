@@ -9,18 +9,26 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import {addToFavorites} from '../backend/firebase-config';
 
 import {COLORS} from '../constants/GLOBAL';
 
 const ArtistCard = ({artist}) => {
   const navigation = useNavigation();
   const [favorite, setFavorite] = useState(false);
+
+  const addToFavoriteArtist = () => {
+    setFavorite(!favorite);
+    addToFavorites(artist);
+  };
+
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate('SongListScreen', artist.song)}
-      style={[styles.imageContainer]}>
+      onPress={() => navigation.navigate('SongListScreen', artist)}
+      style={[styles.imageContainer]}
+      activeOpacity={0.6}>
       <Image
-        source={artist.coverPhoto}
+        source={{uri: artist?.coverPhoto}}
         resizeMode="cover"
         style={styles.image}
       />
@@ -30,13 +38,9 @@ const ArtistCard = ({artist}) => {
       </View>
 
       <TouchableOpacity
-        onPress={() => setFavorite(!favorite)}
-        style={{position: 'absolute', right: 5, top: 5, zIndex: 9990}}>
-        <AntDesign
-          name={favorite ? 'star' : 'staro'}
-          size={22}
-          color={COLORS.YELLOW}
-        />
+        onPress={() => addToFavoriteArtist()}
+        style={{position: 'absolute', right: 5, top: 5, zIndex: 9999}}>
+        <AntDesign name={'star'} size={22} color={COLORS.YELLOW} />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -48,10 +52,12 @@ const styles = StyleSheet.create({
     width: 120,
     height: 160,
     marginRight: 10,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: COLORS.YELLOW,
     borderRadius: 10,
     overflow: 'hidden',
+    elevation: 10,
   },
   image: {
     width: '100%',

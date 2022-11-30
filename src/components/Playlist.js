@@ -15,7 +15,7 @@ const Playlist = ({data, imageHeader}) => {
       />
       <FlatList
         data={data}
-        keyExtractor={item => item.id}
+        keyExtractor={(_item, index) => index.toString()}
         horizontal
         showsHorizontalScrollIndicator={false}
         scrollEventThrottle={16}
