@@ -80,7 +80,6 @@ const logoutUser = async navigation => {
 };
 
 // read
-
 const getArtistByCategory = async (category, setArtist) => {
   try {
     const user = await firestore()
@@ -99,6 +98,20 @@ const getArtistByCategory = async (category, setArtist) => {
   }
 };
 
+const getLastPlayedSong = setSong => {
+  firestore()
+    .collection('users')
+    .doc(auth().currentUser?.email)
+    .onSnapshot(
+      user => {
+        setSong(user.data()?.lastPlayedSong);
+      },
+      err => {
+        console.log(err.message);
+      },
+    );
+};
+
 const getFavoriteArtist = async setFavoriteArtist => {
   firestore()
     .collection('users')
@@ -111,20 +124,6 @@ const getFavoriteArtist = async setFavoriteArtist => {
         });
 
         setFavoriteArtist(tempFavorites);
-      },
-      err => {
-        console.log(err.message);
-      },
-    );
-};
-
-const getLastPlayedSong = setSong => {
-  firestore()
-    .collection('users')
-    .doc(auth().currentUser?.email)
-    .onSnapshot(
-      user => {
-        setSong(user.data()?.lastPlayedSong);
       },
       err => {
         console.log(err.message);
@@ -150,8 +149,67 @@ const getNumberOfFavorites = async setNumberOfFavorites => {
     );
 };
 
-// write
+const getNumberOfLikes = async setNumberOfLikes => {
+  firestore()
+    .collection('users')
+    .doc(auth().currentUser?.email)
+    .onSnapshot(
+      user => {
+        let numberOfLikes = 0;
+        user.data()?.songsLike.forEach(() => {
+          numberOfLikes++;
+        });
+        setNumberOfLikes(numberOfLikes);
+      },
+      err => {
+        console.log(err.message);
+      },
+    );
+};
 
+const checkFavorites = (artistName, setIsFavorite) => {
+  firestore()
+    .collection('users')
+    .doc(auth().currentUser?.email)
+    .onSnapshot(
+      user => {
+        const tempArtist = [];
+        user.data()?.favorites.forEach(async artistInfo => {
+          tempArtist.push(artistInfo.name);
+        });
+        if (tempArtist.includes(artistName)) {
+          setIsFavorite(true);
+        }
+      },
+      err => {
+        console.log(err.message);
+      },
+    );
+};
+
+const checkLikes = (songTitle, setIsLike) => {
+  firestore()
+    .collection('users')
+    .doc(auth().currentUser?.email)
+    .onSnapshot(
+      user => {
+        const tempSong = [];
+        user.data()?.songsLike?.forEach(async song => {
+          tempSong.push(song.title);
+        });
+        if (tempSong?.includes(songTitle)) {
+          setIsLike(true);
+        } else {
+          setIsLike(false);
+        }
+      },
+      err => {
+        console.log(err.message);
+      },
+    );
+};
+
+// write
 const addToFavorites = async artist => {
   let getIndex;
   let alreadyFavorite = false;
@@ -192,9 +250,49 @@ const addToFavorites = async artist => {
     .catch(err => console.log(err.message));
 };
 
+const addToLikes = async song => {
+  let getIndex;
+  let alreadyLike = false;
+  const tempLikes = [];
+
+  // get existing likes
+  const currentLikes = await firestore()
+    .collection('users')
+    .doc(auth().currentUser?.email)
+    .get();
+
+  const currLikes = currentLikes.data()?.songsLike;
+  currLikes.forEach((item, index) => {
+    if (item.title === song.title) {
+      alreadyLike = true;
+      getIndex = index;
+    }
+
+    // put all like song to temp container
+    tempLikes.push(item);
+  });
+
+  // if existing remove, if not then add to db
+  if (alreadyLike) {
+    tempLikes.splice(getIndex, 1);
+    Alert.alert('Removed from your like songs!');
+  } else {
+    tempLikes.push(song);
+    Alert.alert('Added to your like songs!');
+  }
+
+  firestore()
+    .collection('users')
+    .doc(auth().currentUser?.email)
+    .update({
+      songsLike: [...tempLikes],
+    })
+    .catch(err => console.log(err.message));
+};
+
 // update
-const updateLastPlayedSong = async (artist, numberOfSongs) => {
-  await firestore()
+const updateLastPlayedSong = (artist, numberOfSongs) => {
+  firestore()
     .collection('users')
     .doc(auth().currentUser?.email)
     .update({
@@ -208,9 +306,13 @@ export {
   addUserToDatabase,
   logoutUser,
   getArtistByCategory,
-  getFavoriteArtist,
   getLastPlayedSong,
+  getFavoriteArtist,
   getNumberOfFavorites,
+  getNumberOfLikes,
+  checkFavorites,
+  checkLikes,
   addToFavorites,
+  addToLikes,
   updateLastPlayedSong,
 };

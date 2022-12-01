@@ -17,6 +17,11 @@ const App = () => {
       try {
         await TrackPlayer.setupPlayer();
         await TrackPlayer.updateOptions({
+          android: {
+            // This is the default behavior
+            appKilledPlaybackBehavior:
+              AppKilledPlaybackBehavior.ContinuePlayback,
+          },
           alwaysPauseOnInterruption: true,
           capabilities: [
             Capability.Play,

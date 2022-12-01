@@ -5,18 +5,21 @@ import {
   View,
   Image,
   TouchableOpacity,
+  Alert,
+  ToastAndroid,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 import Slider from '@react-native-community/slider';
 import TrackPlayer, {
   Event,
+  RepeatMode,
   State,
   usePlaybackState,
   useProgress,
@@ -79,10 +82,7 @@ const PlayerTab = () => {
       <MainHeader />
       <View style={styles.contentContainer}>
         {song.firstTime ? (
-          <View
-            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text>NO CURRENTLY PLAYING</Text>
-          </View>
+          <Warning />
         ) : (
           <View style={styles.content}>
             <CoverPhoto artwork={track?.artwork} />
@@ -106,6 +106,21 @@ const PlayerTab = () => {
         )}
       </View>
     </ImageBackground>
+  );
+};
+
+const Warning = () => {
+  return (
+    <View
+      style={[
+        styles.content,
+        {justifyContent: 'center', alignItems: 'center'},
+      ]}>
+      <Entypo name="warning" size={60} color={COLORS.RED} />
+      <Text style={styles.warningSign}>
+        NO MUSIC IS PLAYING{'\n'}PLEASE PLAY A SONG FIRST!
+      </Text>
+    </View>
   );
 };
 
@@ -203,21 +218,74 @@ const Controls = ({track, numOfSongs, playbackState, togglePlayback}) => {
 
 const Buttons = () => {
   const iconSize = 30;
+  const [repeatMode, setRepeatMode] = useState('off');
+
+  const repeatIcon = () => {
+    if (repeatMode === 'off') {
+      return 'repeat-off';
+    }
+
+    if (repeatMode === 'track') {
+      return 'repeat-once';
+    }
+
+    if (repeatMode === 'repeat') {
+      return 'repeat';
+    }
+  };
+
+  const changeRepeatMode = async () => {
+    if (repeatMode === 'off') {
+      await TrackPlayer.setRepeatMode(RepeatMode.Track);
+      setRepeatMode('track');
+      ToastAndroid.showWithGravityAndOffset(
+        'repeat-once',
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM,
+        0,
+        300,
+      );
+    }
+
+    if (repeatMode === 'track') {
+      await TrackPlayer.setRepeatMode(RepeatMode.Queue);
+      setRepeatMode('repeat');
+      ToastAndroid.showWithGravityAndOffset(
+        'repeat-queue',
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM,
+        0,
+        300,
+      );
+    }
+
+    if (repeatMode === 'repeat') {
+      await TrackPlayer.setRepeatMode(RepeatMode.Off);
+      setRepeatMode('off');
+      ToastAndroid.showWithGravityAndOffset(
+        'repeat-off',
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM,
+        0,
+        300,
+      );
+    }
+  };
+
   return (
     <View style={styles.buttonContainer}>
-      <TouchableOpacity>
-        <AntDesign name="hearto" color={COLORS.WHITE} size={iconSize} />
-      </TouchableOpacity>
-
-      <TouchableOpacity>
-        <Feather name="repeat" color={COLORS.WHITE} size={iconSize} />
-      </TouchableOpacity>
-
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => Alert.alert('Not working at this time')}>
         <Feather name="share" color={COLORS.WHITE} size={iconSize} />
       </TouchableOpacity>
+      <TouchableOpacity onPress={() => changeRepeatMode()}>
+        <MaterialCommunityIcons
+          name={`${repeatIcon()}`}
+          color={repeatMode !== 'off' ? COLORS.BLACK : COLORS.WHITE}
+          size={iconSize}
+        />
+      </TouchableOpacity>
 
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => Alert.alert('Not working at this time')}>
         <Entypo
           name="dots-three-horizontal"
           color={COLORS.WHITE}
@@ -245,6 +313,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.YELLOW,
     borderRadius: 10,
+  },
+  warningSign: {
+    textAlign: 'center',
+    fontWeight: '900',
+    color: COLORS.BLACK,
+    fontSize: 20,
+    marginTop: 10,
   },
   coverContainer: {
     justifyContent: 'center',

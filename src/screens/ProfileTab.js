@@ -9,7 +9,11 @@ import {
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 
-import {getNumberOfFavorites, logoutUser} from '../backend/firebase-config';
+import {
+  getNumberOfFavorites,
+  getNumberOfLikes,
+  logoutUser,
+} from '../backend/firebase-config';
 import {BACKGROUND_IMAGES, COLORS, DEVICE_DIMENSION} from '../constants/GLOBAL';
 
 const ProfileTab = ({navigation}) => {
@@ -17,9 +21,11 @@ const ProfileTab = ({navigation}) => {
   const displayName = auth().currentUser?.displayName;
   const email = auth().currentUser?.email;
   const [numberOfFavorites, setNumberOfFavorites] = useState(0);
+  const [numberOfLikes, setNumberOfLikes] = useState(0);
 
   useEffect(() => {
     getNumberOfFavorites(setNumberOfFavorites);
+    getNumberOfLikes(setNumberOfLikes);
   }, []);
 
   return (
@@ -55,11 +61,11 @@ const ProfileTab = ({navigation}) => {
 
               <View style={styles.textContainer}>
                 <Text style={styles.headerText}>SONGS YOU LIKE</Text>
-                <Text style={styles.subText}>12</Text>
+                <Text style={styles.subText}>{numberOfLikes}</Text>
               </View>
               <View style={styles.textContainer}>
                 <Text style={styles.headerText}>FOLLOWERS</Text>
-                <Text style={styles.subText}>12</Text>
+                <Text style={styles.subText}>0</Text>
               </View>
             </View>
 

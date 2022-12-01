@@ -1,19 +1,22 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
-import {addToFavorites} from '../backend/firebase-config';
+import {addToFavorites, checkFavorites} from '../backend/firebase-config';
 import {COLORS} from '../constants/GLOBAL';
 
 const ArtistCard = ({artist}) => {
   const navigation = useNavigation();
-  const [favorite, setFavorite] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const addToFavoriteArtist = () => {
-    setFavorite(!favorite);
     addToFavorites(artist);
   };
+
+  useEffect(() => {
+    checkFavorites(artist?.name, setIsFavorite);
+  }, []);
 
   return (
     <TouchableOpacity
@@ -33,7 +36,11 @@ const ArtistCard = ({artist}) => {
       <TouchableOpacity
         onPress={() => addToFavoriteArtist()}
         style={{position: 'absolute', right: 5, top: 5, zIndex: 9999}}>
-        <AntDesign name={'star'} size={22} color={COLORS.YELLOW} />
+        <AntDesign
+          name={isFavorite ? 'star' : 'staro'}
+          size={22}
+          color={COLORS.YELLOW}
+        />
       </TouchableOpacity>
     </TouchableOpacity>
   );

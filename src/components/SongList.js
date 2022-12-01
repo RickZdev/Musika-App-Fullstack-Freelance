@@ -7,9 +7,12 @@ import {
   StyleSheet,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import Feather from 'react-native-vector-icons/Feather';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 import {BACKGROUND_IMAGES, COLORS, DEVICE_DIMENSION} from '../constants/GLOBAL';
+import {useEffect, useState} from 'react';
+import {addToLikes, checkLikes} from '../backend/firebase-config';
 
 const SongList = ({songs}) => {
   return (
@@ -28,6 +31,16 @@ const SongList = ({songs}) => {
 
 const Card = ({songs, song, index}) => {
   const navigation = useNavigation();
+  const [isLike, setIsLike] = useState(false);
+
+  const handleAddToLikes = () => {
+    addToLikes(song);
+  };
+
+  useEffect(() => {
+    checkLikes(song?.title, setIsLike);
+  }, []);
+
   return (
     <TouchableOpacity
       key={index}
@@ -51,8 +64,17 @@ const Card = ({songs, song, index}) => {
 
       {/* control */}
       <View style={styles.controlsContainer}>
-        <Feather
-          name="heart"
+        <TouchableOpacity onPress={() => handleAddToLikes()}>
+          <AntDesign
+            name={isLike ? 'heart' : 'hearto'}
+            size={27}
+            color={isLike ? COLORS.RED : COLORS.WHITE}
+            style={{marginLeft: 10}}
+          />
+        </TouchableOpacity>
+
+        <FontAwesome5
+          name="play"
           size={27}
           color={COLORS.WHITE}
           style={{marginLeft: 10}}
